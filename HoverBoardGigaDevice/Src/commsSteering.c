@@ -41,6 +41,7 @@
 
 // Only master communicates with steerin device
 #ifdef MASTER
+#ifdef ENABLE_STEERING
 #define USART_STEER_TX_BYTES 2   // Transmit byte count including start '/' and stop character '\n'
 #define USART_STEER_RX_BYTES 8   // Receive byte count including start '/' and stop character '\n'
 
@@ -133,4 +134,5 @@ void CheckUSARTSteerInput(uint8_t USARTBuffer[])
 	// Reset the pwm timout to avoid stopping motors
 	ResetTimeout();
 }
+#endif
 #endif

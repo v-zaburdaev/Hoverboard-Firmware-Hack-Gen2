@@ -38,7 +38,12 @@
 #include "../Inc/it.h"
 #include "../Inc/bldc.h"
 #include "../Inc/commsMasterSlave.h"
+#ifdef ENABLE_SBUS
+#include "../Inc/commsSbus.h"
+#endif
+#ifdef ENABLE_STEERING
 #include "../Inc/commsSteering.h"
+#endif
 #include "../Inc/commsBluetooth.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -337,11 +342,11 @@ int main (void)
 	{
 #ifdef MASTER
 		steerCounter++;	
-		if ((steerCounter % 2) == 0)
-		{	
-			// Request steering data
-			SendSteerDevice();
-		}
+		// if ((steerCounter % 2) == 0)
+		// {	
+		// 	// Request steering data
+		// 	SendSteerDevice();
+		// }
 		
 		// Calculate expo rate for less steering with higher speeds
 		expo = MAP((float)ABS(speed), 0, 1000, 1, 0.5);

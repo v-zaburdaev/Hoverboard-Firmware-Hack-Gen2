@@ -28,25 +28,45 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMMSSTEERING_H
-#define COMMSSTEERING_H
+#ifndef COMMSBUS_H
+#define COMMSBUS_H
 
 #include "gd32f1x0.h"
 #include "../Inc/config.h"
 
 // Only master communicates with steering device
 #ifdef MASTER
-#ifdef ENABLE_STEERING
+#ifdef ENABLE_SBUS
+  #define NUM_CH 16
+  static const int8_t PAYLOAD_LEN_ = 23;
+  static const int8_t HEADER_LEN_ = 1;
+  static const int8_t FOOTER_LEN_ = 1;
+  /* SBUS message defs */
+  static const int8_t NUM_SBUS_CH_ = 16;
+  static const uint8_t HEADER_ = 0x0F;
+  #define FOOTER_ 0x00
+  static const uint8_t FOOTER2_ = 0x04;
+  static const uint8_t CH17_MASK_ = 0x01;
+  static const uint8_t CH18_MASK_ = 0x02;
+  static const uint8_t LOST_FRAME_MASK_ = 0x04;
+  static const uint8_t FAILSAFE_MASK_ = 0x08;
+  
+  bool lost_frame;
+  bool failsafe;
+  bool ch17, ch18;
+  int16_t ch[NUM_CH];
+  uint8_t buf_[25];
+  bool new_data_;
+  bool Parse();
 //----------------------------------------------------------------------------
 // Update USART steer input
 //----------------------------------------------------------------------------
-void UpdateUSARTSteerInput(void);
+bool UpdateUSARTSteerInput(void);
 
 //----------------------------------------------------------------------------
 // Send frame to steer device
 //----------------------------------------------------------------------------
-void SendSteerDevice(void);
+// void SendSteerDevice(void);
 #endif
 #endif
 #endif
-
