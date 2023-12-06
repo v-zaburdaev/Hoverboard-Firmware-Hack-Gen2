@@ -44,12 +44,25 @@
 #ifdef ENABLE_SBUS
 
 #define SBUS_THROTTLE_CH 1
-#define SBUS_STEER_CH 3
+#define SBUS_STEER_CH 0
+#define USART_STEER_TX_BYTES 2
 
 extern uint8_t usartSteer_COM_rx_buf[USART_STEER_COM_RX_BUFFERSIZE];
 // static uint8_t sSteerRecord = 0;
 // static uint8_t sUSARTSteerRecordBuffer[USART_STEER_RX_BYTES];
 // static uint8_t sUSARTSteerRecordBufferCounter = 0;
+
+	uint8_t buffer[USART_STEER_TX_BYTES];
+void SendSteerDevice(void)
+{
+	int index = 0;
+	
+	// // Ask for steer input
+	// buffer[index++] = 0x0f; //'/';
+	// buffer[index++] = '\n';
+	buffer[0] = 170; //'/';
+	SendBuffer(USART_STEER_COM, buffer, 1);
+}
 
 void CheckUSARTSteerInput(void);
 
@@ -63,6 +76,12 @@ bool UpdateUSARTSteerInput() {
   /* Parse messages */
   
     cur_byte_ = usartSteer_COM_rx_buf[0];
+
+//  if (cur_byte_ ==  0x0f){
+  
+  
+//   SendSteerDevice();
+// }
     if (state_ == 0) {
       if ((cur_byte_ == HEADER_) && ((prev_byte_ == FOOTER_) ||
          ((prev_byte_ & 0x0F) == FOOTER2_))) {
@@ -74,6 +93,7 @@ bool UpdateUSARTSteerInput() {
         buf_[state_++] = cur_byte_;
     } else if (state_ < PAYLOAD_LEN_ + HEADER_LEN_ + FOOTER_LEN_) {
       state_ = 0;
+      
       prev_byte_ = cur_byte_;
       if ((cur_byte_ == FOOTER_) || ((cur_byte_ & 0x0F) == FOOTER2_)) {
         /* Grab the channel data */
@@ -95,7 +115,7 @@ bool UpdateUSARTSteerInput() {
         ch[7]  = (int16_t)((buf_[10] >> 5) |
                                             ((buf_[11] << 3) & 0x07FF));
         ch[8]  = (int16_t)(buf_[12] |
-                                            ((buf_[13] << 8) & 0x07FF));
+                                             ((buf_[13] << 8) & 0x07FF));
         ch[9]  = (int16_t)((buf_[13] >> 3) |
                                             ((buf_[14] << 5) & 0x07FF));
         ch[10] = (int16_t)((buf_[14] >> 6) |
@@ -114,13 +134,13 @@ bool UpdateUSARTSteerInput() {
                                             ((buf_[22] << 3) & 0x07FF));
         /* CH 17 */
         ch17 = buf_[23] & CH17_MASK_;
-        /* CH 18 */
+        // /* CH 18 */
         ch18 = buf_[23] & CH18_MASK_;
-        /* Grab the lost frame */
+        // /* Grab the lost frame */
         lost_frame = buf_[23] & LOST_FRAME_MASK_;
-        /* Grab the failsafe */
+        // /* Grab the failsafe */
         failsafe = buf_[23] & FAILSAFE_MASK_;
-		CheckUSARTSteerInput();
+		    CheckUSARTSteerInput();
         return TRUE;
       } else {
         return FALSE;
@@ -134,13 +154,16 @@ bool UpdateUSARTSteerInput() {
 
 void CheckUSARTSteerInput(void)
 {
-
 	if(failsafe==FALSE && lost_frame==FALSE){
+// SendSteerDevice();
 		// Calculate result speed value -1000 to 1000
-		speed = (int16_t)(ch[SBUS_THROTTLE_CH]);
+		speed = 1000-(int16_t)(ch[SBUS_THROTTLE_CH]);
 		
 		// Calculate result steering value -1000 to 1000
-		steer = (int16_t)(ch[SBUS_STEER_CH]);
+		steer = 1000-(int16_t)(ch[SBUS_STEER_CH]);
+
+  	ResetTimeout();
+
 	}
 	return;
 }

@@ -38,18 +38,18 @@
 #ifdef MASTER
 #ifdef ENABLE_SBUS
   #define NUM_CH 16
-  static const int8_t PAYLOAD_LEN_ = 23;
-  static const int8_t HEADER_LEN_ = 1;
-  static const int8_t FOOTER_LEN_ = 1;
+  #define PAYLOAD_LEN_ 23
+  #define HEADER_LEN_ 1
+  #define FOOTER_LEN_ 1
   /* SBUS message defs */
-  static const int8_t NUM_SBUS_CH_ = 16;
-  static const uint8_t HEADER_ = 0x0F;
+  #define NUM_SBUS_CH_ 16
+  #define HEADER_ 0x0F
   #define FOOTER_ 0x00
-  static const uint8_t FOOTER2_ = 0x04;
-  static const uint8_t CH17_MASK_ = 0x01;
-  static const uint8_t CH18_MASK_ = 0x02;
-  static const uint8_t LOST_FRAME_MASK_ = 0x04;
-  static const uint8_t FAILSAFE_MASK_ = 0x08;
+  #define FOOTER2_ 0x04
+  #define CH17_MASK_ 0x01
+  #define CH18_MASK_ 0x02
+  #define LOST_FRAME_MASK_ 0x04
+  #define FAILSAFE_MASK_ 0x08
   
   bool lost_frame;
   bool failsafe;

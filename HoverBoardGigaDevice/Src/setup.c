@@ -450,12 +450,18 @@ void USART_Steer_COM_init(void)
 	rcu_periph_clock_enable(RCU_DMA);
 	
 	// Init USART for 19200 baud, 8N1
-	usart_baudrate_set(USART_STEER_COM, 19200);
-	usart_parity_config(USART_STEER_COM, USART_PM_NONE);
-	usart_word_length_set(USART_STEER_COM, USART_WL_8BIT);
-	usart_stop_bit_set(USART_STEER_COM, USART_STB_1BIT);
-	usart_oversample_config(USART_STEER_COM, USART_OVSMOD_16);
-	
+	usart_baudrate_set(USART_STEER_COM, 100000);
+	usart_parity_config(USART_STEER_COM, USART_PM_EVEN);
+	usart_word_length_set(USART_STEER_COM, USART_WL_9BIT);
+	usart_stop_bit_set(USART_STEER_COM, USART_STB_2BIT);
+	// usart_oversample_config(USART_STEER_COM, USART_OVSMOD_16);
+	// usart_autobaud_detection_mode_config(USART_STEER_COM, USART_ABDM_FTOF);
+	// usart_sample_bit_config(USART_STEER_COM, USART_OSB_1BIT);
+	// usart_interrupt_disable(USART_STEER_COM, USART_INT_PERR);
+	// usart_hardware_flow_cts_config(USART_STEER_COM, USART_CTS_DISABLE);
+	// usart_hardware_flow_rts_config(USART_STEER_COM, USART_RTS_DISABLE);
+	usart_invert_config(USART_STEER_COM, USART_RXPIN_DISABLE);
+	// usart_invert_config(USART_STEER_COM, USART_TXPIN_ENABLE);
 	// Enable both transmitter and receiver
 	usart_transmit_config(USART_STEER_COM, USART_TRANSMIT_ENABLE);
 	usart_receive_config(USART_STEER_COM, USART_RECEIVE_ENABLE);

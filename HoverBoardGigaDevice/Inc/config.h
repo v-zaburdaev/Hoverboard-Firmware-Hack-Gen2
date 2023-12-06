@@ -52,7 +52,7 @@
 
 #define DELAY_IN_MAIN_LOOP 	5         // Delay in ms
 
-#define TIMEOUT_MS          2000      // Time in milliseconds without steering commands before pwm emergency off
+#define TIMEOUT_MS          20000      // Time in milliseconds without steering commands before pwm emergency off
 
 #ifdef MASTER
 #define INACTIVITY_TIMEOUT 	8        	// Minutes of not driving until poweroff (not very precise)
