@@ -31,7 +31,6 @@
 #include "gd32f1x0.h"
 #include "../Inc/it.h"
 #include "../Inc/comms.h"
-#include "../Inc/commsSteering.h"
 #include "../Inc/setup.h"
 #include "../Inc/config.h"
 #include "../Inc/defines.h"

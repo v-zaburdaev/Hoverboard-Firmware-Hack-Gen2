@@ -33,6 +33,7 @@
 #include "../Inc/defines.h"
 #include "../Inc/config.h"
 #include "../Inc/it.h"
+#include "../Inc/comms.h"
 
 #define TIMEOUT_FREQ  1000
 
@@ -52,7 +53,6 @@ uint8_t usartSteer_COM_rx_buf[USART_STEER_COM_RX_BUFFERSIZE];
 // DMA (ADC) structs
 dma_parameter_struct dma_init_struct_adc;
 extern adc_buf_t adc_buffer;
-
 //----------------------------------------------------------------------------
 // Initializes the interrupts
 //----------------------------------------------------------------------------
@@ -181,39 +181,71 @@ void GPIO_init(void)
 	gpio_af_set(TIMER_BLDC_EMERGENCY_SHUTDOWN_PORT, GPIO_AF_2, TIMER_BLDC_EMERGENCY_SHUTDOWN_PIN);
 	
 	// Init PWM output Pins (Configure as alternate functions, push-pull, no pullup)
-  gpio_mode_set(TIMER_BLDC_GH_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_GH_PIN);
+  	gpio_mode_set(TIMER_BLDC_GH_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_GH_PIN);
 	gpio_mode_set(TIMER_BLDC_BH_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_BH_PIN);
 	gpio_mode_set(TIMER_BLDC_YH_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_YH_PIN);
 	gpio_mode_set(TIMER_BLDC_GL_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_GL_PIN);
 	gpio_mode_set(TIMER_BLDC_BL_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_BL_PIN);
 	gpio_mode_set(TIMER_BLDC_YL_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, TIMER_BLDC_YL_PIN);
 	
-  gpio_output_options_set(TIMER_BLDC_GH_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_GH_PIN);
-  gpio_output_options_set(TIMER_BLDC_BH_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_BH_PIN);
-  gpio_output_options_set(TIMER_BLDC_YH_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_YH_PIN);
+	gpio_output_options_set(TIMER_BLDC_GH_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_GH_PIN);
+	gpio_output_options_set(TIMER_BLDC_BH_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_BH_PIN);
+	gpio_output_options_set(TIMER_BLDC_YH_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_YH_PIN);
 	gpio_output_options_set(TIMER_BLDC_GL_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_GL_PIN);
-  gpio_output_options_set(TIMER_BLDC_BL_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_BL_PIN);
-  gpio_output_options_set(TIMER_BLDC_YL_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_YL_PIN);
+	gpio_output_options_set(TIMER_BLDC_BL_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_BL_PIN);
+	gpio_output_options_set(TIMER_BLDC_YL_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, TIMER_BLDC_YL_PIN);
 
-  gpio_af_set(TIMER_BLDC_GH_PORT, GPIO_AF_2, TIMER_BLDC_GH_PIN);
-  gpio_af_set(TIMER_BLDC_BH_PORT, GPIO_AF_2, TIMER_BLDC_BH_PIN);
+	gpio_af_set(TIMER_BLDC_GH_PORT, GPIO_AF_2, TIMER_BLDC_GH_PIN);
+	gpio_af_set(TIMER_BLDC_BH_PORT, GPIO_AF_2, TIMER_BLDC_BH_PIN);
 	gpio_af_set(TIMER_BLDC_YH_PORT, GPIO_AF_2, TIMER_BLDC_YH_PIN);
 	gpio_af_set(TIMER_BLDC_GL_PORT, GPIO_AF_2, TIMER_BLDC_GL_PIN);
-  gpio_af_set(TIMER_BLDC_BL_PORT, GPIO_AF_2, TIMER_BLDC_BL_PIN);
+  	gpio_af_set(TIMER_BLDC_BL_PORT, GPIO_AF_2, TIMER_BLDC_BL_PIN);
 	gpio_af_set(TIMER_BLDC_YL_PORT, GPIO_AF_2, TIMER_BLDC_YL_PIN);
 	
 	// Init self hold
 	gpio_mode_set(SELF_HOLD_PORT , GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SELF_HOLD_PIN);	
 	gpio_output_options_set(SELF_HOLD_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, SELF_HOLD_PIN);
 	
-	// Init USART0
-	gpio_mode_set(USART_STEER_COM_TX_PORT , GPIO_MODE_AF, GPIO_PUPD_PULLUP, USART_STEER_COM_TX_PIN);	
-	gpio_mode_set(USART_STEER_COM_RX_PORT , GPIO_MODE_AF, GPIO_PUPD_PULLUP, USART_STEER_COM_RX_PIN);
-	gpio_output_options_set(USART_STEER_COM_TX_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, USART_STEER_COM_TX_PIN);
-	gpio_output_options_set(USART_STEER_COM_RX_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, USART_STEER_COM_RX_PIN);	
-	gpio_af_set(USART_STEER_COM_TX_PORT, GPIO_AF_0, USART_STEER_COM_TX_PIN);
-	gpio_af_set(USART_STEER_COM_RX_PORT, GPIO_AF_0, USART_STEER_COM_RX_PIN);
-	
+	#if defined(ENABLE_STEERING) || defined(ENABLE_SBUS) || defined(ENABLE_CRSF)
+		// Init USART0
+		gpio_mode_set(USART_STEER_COM_TX_PORT , GPIO_MODE_AF, GPIO_PUPD_PULLUP, USART_STEER_COM_TX_PIN);	
+		gpio_mode_set(USART_STEER_COM_RX_PORT , GPIO_MODE_AF, GPIO_PUPD_PULLUP, USART_STEER_COM_RX_PIN);
+		gpio_output_options_set(USART_STEER_COM_TX_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, USART_STEER_COM_TX_PIN);
+		gpio_output_options_set(USART_STEER_COM_RX_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, USART_STEER_COM_RX_PIN);	
+		gpio_af_set(USART_STEER_COM_TX_PORT, GPIO_AF_0, USART_STEER_COM_TX_PIN);
+		gpio_af_set(USART_STEER_COM_RX_PORT, GPIO_AF_0, USART_STEER_COM_RX_PIN);
+	#endif
+
+	#ifdef ENABLE_PPM
+		gpio_mode_set(PPM_THROTTLE_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, PPM_THROTTLE_PIN);
+		gpio_mode_set(PPM_STEER_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, PPM_STEER_PIN);
+		NVIC_SetPriority(EXTI4_15_IRQn, 0);
+		nvic_irq_enable(EXTI4_15_IRQn, 0,0);
+
+	#endif
+	#ifdef ENABLE_PWM
+		rcu_periph_clock_enable(RCU_CFGCMP);
+		// gpio_mode_set(PWM_PORT_CH1, GPIO_MODE_INPUT, GPIO_PUPD_NONE, PWM_PIN_CH1);
+    	// gpio_mode_set(PWM_PORT_CH2, GPIO_MODE_INPUT, GPIO_PUPD_NONE, PWM_PIN_CH2);
+		// gpio_output_options_set(PWM_PORT_CH1, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, PWM_PIN_CH1);	
+		// gpio_output_options_set(PWM_PORT_CH2, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, PWM_PIN_CH2);	
+
+		// // gpio_af_set(PWM_PORT_CH1, GPIO_AF_0, PWM_PIN_CH1);
+		// // gpio_af_set(PWM_PORT_CH2, GPIO_AF_0, PWM_PIN_CH2);
+		// gpio_clock_enable();
+		nvic_irq_enable(EXTI4_15_IRQn, 4, 0);
+		syscfg_exti_line_config(EXTI_SOURCE_GPIOB, EXTI_SOURCE_PIN6);
+		syscfg_exti_line_config(EXTI_SOURCE_GPIOB, EXTI_SOURCE_PIN7);
+		// // rcu_periph_clock_enable();
+				
+		exti_init(EXTI_6, EXTI_INTERRUPT, EXTI_TRIG_BOTH);
+		exti_init(EXTI_7, EXTI_INTERRUPT, EXTI_TRIG_BOTH);
+		exti_interrupt_flag_clear(EXTI_6);
+		exti_interrupt_flag_clear(EXTI_7);
+		exti_interrupt_enable(EXTI_6);
+		exti_interrupt_enable(EXTI_7);
+
+	#endif
 #ifdef MASTER	
 	// Init buzzer
 	gpio_mode_set(BUZZER_PORT , GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BUZZER_PIN);	
@@ -443,6 +475,7 @@ void USART_MasterSlave_init(void)
 //----------------------------------------------------------------------------
 // Initializes the usart steer/bluetooth
 //----------------------------------------------------------------------------
+#if defined(ENABLE_STEERING) || defined(ENABLE_SBUS) || defined(ENABLE_CRSF)
 void USART_Steer_COM_init(void)
 {
 		// Enable ADC and DMA clock
@@ -450,18 +483,20 @@ void USART_Steer_COM_init(void)
 	rcu_periph_clock_enable(RCU_DMA);
 	
 	// Init USART for 19200 baud, 8N1
-	usart_baudrate_set(USART_STEER_COM, 100000);
-	usart_parity_config(USART_STEER_COM, USART_PM_EVEN);
-	usart_word_length_set(USART_STEER_COM, USART_WL_9BIT);
-	usart_stop_bit_set(USART_STEER_COM, USART_STB_2BIT);
+	usart_baudrate_set(USART_STEER_COM, REMOTE_BAUD);
+	usart_parity_config(USART_STEER_COM, REMOTE_PARITY);
+	usart_word_length_set(USART_STEER_COM, REMOTE_WORD_LENGTH);
+	usart_stop_bit_set(USART_STEER_COM, REMOTE_STOP_BIT);
 	// usart_oversample_config(USART_STEER_COM, USART_OVSMOD_16);
 	// usart_autobaud_detection_mode_config(USART_STEER_COM, USART_ABDM_FTOF);
 	// usart_sample_bit_config(USART_STEER_COM, USART_OSB_1BIT);
 	// usart_interrupt_disable(USART_STEER_COM, USART_INT_PERR);
 	// usart_hardware_flow_cts_config(USART_STEER_COM, USART_CTS_DISABLE);
 	// usart_hardware_flow_rts_config(USART_STEER_COM, USART_RTS_DISABLE);
-	usart_invert_config(USART_STEER_COM, USART_RXPIN_DISABLE);
+	#ifdef ENABLE_SBUS
+	// usart_invert_config(USART_STEER_COM, USART_RXPIN_ENABLE);
 	// usart_invert_config(USART_STEER_COM, USART_TXPIN_ENABLE);
+	#endif
 	// Enable both transmitter and receiver
 	usart_transmit_config(USART_STEER_COM, USART_TRANSMIT_ENABLE);
 	usart_receive_config(USART_STEER_COM, USART_RECEIVE_ENABLE);
@@ -501,3 +536,11 @@ void USART_Steer_COM_init(void)
 	// Enable dma receive channel
 	dma_channel_enable(DMA_CH2);
 }
+#endif
+
+#ifdef ENABLE_PPM
+void PPM_init(void){
+
+
+}
+#endif

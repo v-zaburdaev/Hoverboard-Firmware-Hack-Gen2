@@ -35,9 +35,8 @@
 #include "../Inc/bldc.h"
 #include "../Inc/led.h"
 #include "../Inc/commsMasterSlave.h"
-#include "../Inc/commsSteering.h"
+#include "../Inc/comms.h"
 #include "../Inc/commsBluetooth.h"
-
 uint32_t msTicks;
 uint32_t timeoutCounter_ms = 0;
 FlagStatus timedOut = SET;
@@ -57,6 +56,9 @@ extern FlagStatus beepsBackwards;
 void SysTick_Handler(void)
 {
   msTicks++;
+  #if defined(ENABLE_PPM)
+	PPM_SysTick_Callback();
+  #endif
 }
 
 //----------------------------------------------------------------------------
@@ -164,7 +166,17 @@ void DMA_Channel1_2_IRQHandler(void)
 	{
 #ifdef MASTER
 		// Update USART steer input mechanism
+		
+#ifdef ENABLE_STEERING
 		UpdateUSARTSteerInput();
+#endif
+#ifdef ENABLE_SBUS
+		UpdateUSARTSbusInput();
+#endif
+#ifdef ENABLE_CRSF
+		RemoteCallback();
+#endif
+
 #endif
 #ifdef SLAVE
 		// Update USART bluetooth input mechanism
@@ -190,6 +202,30 @@ void DMA_Channel3_4_IRQHandler(void)
 		dma_interrupt_flag_clear(DMA_CH4, DMA_INT_FLAG_FTF);        
 	}
 }
+void EXTI4_15_IRQHandler(void){
+	#ifdef ENABLE_PWM
+	if(exti_interrupt_flag_get(PWM_PIN_CH1)!=RESET){
+		exti_interrupt_flag_clear(PWM_PIN_CH1);
+		PWM_ISR_CH1_Callback();
+	}
+
+	if(exti_interrupt_flag_get(PWM_PIN_CH2)!=RESET){
+		exti_interrupt_flag_clear(PWM_PIN_CH2);
+		PWM_ISR_CH2_Callback();
+	}
+	#endif
+
+ }
+
+//  void TIMER2_IRQHandler(void){
+// 	#ifdef ENABLE_PWM
+// 		PWM_SysTick_Callback();
+// 	#endif
+	
+// 	timer_interrupt_flag_clear(TIMER2, TIMER_INT_UP);//	timer_interrupt_flag_clear(TIMER13, TIMER_INT_UP);
+
+
+//  }
 
 //----------------------------------------------------------------------------
 // Returns number of milliseconds since system start

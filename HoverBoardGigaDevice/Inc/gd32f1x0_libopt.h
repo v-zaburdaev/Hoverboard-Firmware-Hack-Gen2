@@ -28,5 +28,6 @@
 #include "gd32f1x0_usart.h"
 #include "gd32f1x0_wwdgt.h"
 #include "gd32f1x0_misc.h"
+#include "gd32f1x0_exti.h"
 
 #endif /* GD32F1X0_LIBOPT_H */

@@ -37,6 +37,16 @@
 // Only master communicates with steering device
 #ifdef MASTER
 #ifdef ENABLE_SBUS
+
+  #define REMOTE_BAUD 100000
+  #define REMOTE_PARITY USART_PM_EVEN
+  #define REMOTE_WORD_LENGTH USART_WL_9BIT
+  #define REMOTE_STOP_BIT USART_STB_2BIT
+
+  #define SBUS_THROTTLE_CH 1
+  #define SBUS_STEER_CH 0
+
+
   #define NUM_CH 16
   #define PAYLOAD_LEN_ 23
   #define HEADER_LEN_ 1
@@ -61,7 +71,7 @@
 //----------------------------------------------------------------------------
 // Update USART steer input
 //----------------------------------------------------------------------------
-bool UpdateUSARTSteerInput(void);
+bool UpdateUSARTSbusInput(void);
 
 //----------------------------------------------------------------------------
 // Send frame to steer device

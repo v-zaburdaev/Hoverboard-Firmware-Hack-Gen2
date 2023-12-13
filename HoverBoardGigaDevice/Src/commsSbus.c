@@ -31,7 +31,6 @@
 #include "gd32f1x0.h"
 #include "../Inc/it.h"
 #include "../Inc/comms.h"
-#include "../Inc/commsSbus.h"
 #include "../Inc/setup.h"
 #include "../Inc/config.h"
 #include "../Inc/defines.h"
@@ -43,8 +42,6 @@
 #ifdef MASTER
 #ifdef ENABLE_SBUS
 
-#define SBUS_THROTTLE_CH 1
-#define SBUS_STEER_CH 0
 #define USART_STEER_TX_BYTES 2
 
 extern uint8_t usartSteer_COM_rx_buf[USART_STEER_COM_RX_BUFFERSIZE];
@@ -55,7 +52,7 @@ extern uint8_t usartSteer_COM_rx_buf[USART_STEER_COM_RX_BUFFERSIZE];
 	uint8_t buffer[USART_STEER_TX_BYTES];
 void SendSteerDevice(void)
 {
-	int index = 0;
+	// int index = 0;
 	
 	// // Ask for steer input
 	// buffer[index++] = 0x0f; //'/';
@@ -72,16 +69,11 @@ int8_t state_ = 0;
 uint8_t prev_byte_ = FOOTER_;
 uint8_t cur_byte_;
 
-bool UpdateUSARTSteerInput() {
+bool UpdateUSARTSbusInput() {
   /* Parse messages */
   
     cur_byte_ = usartSteer_COM_rx_buf[0];
 
-//  if (cur_byte_ ==  0x0f){
-  
-  
-//   SendSteerDevice();
-// }
     if (state_ == 0) {
       if ((cur_byte_ == HEADER_) && ((prev_byte_ == FOOTER_) ||
          ((prev_byte_ & 0x0F) == FOOTER2_))) {

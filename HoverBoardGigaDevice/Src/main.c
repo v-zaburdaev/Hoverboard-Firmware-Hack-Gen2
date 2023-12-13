@@ -38,12 +38,7 @@
 #include "../Inc/it.h"
 #include "../Inc/bldc.h"
 #include "../Inc/commsMasterSlave.h"
-#ifdef ENABLE_SBUS
-#include "../Inc/commsSbus.h"
-#endif
-#ifdef ENABLE_STEERING
-#include "../Inc/commsSteering.h"
-#endif
+#include "../Inc/comms.h"
 #include "../Inc/commsBluetooth.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -53,7 +48,7 @@
 
 #ifdef MASTER
 int32_t steer = 0; 												// global variable for steering. -1000 to 1000
-int32_t speed = 0; 												// global variable for speed.    -1000 to 1000
+int32_t speed = 100; 												// global variable for speed.    -1000 to 1000
 FlagStatus activateWeakening = RESET;			// global variable for weakening
 FlagStatus beepsBackwards = RESET;  			// global variable for beeps backwards
 			
@@ -311,15 +306,32 @@ int main (void)
 	// Init ADC
 	ADC_init();
 	
+  #ifdef ENABLE_PPM
+  PPM_init();
+  #endif
+
 	// Init PWM
 	PWM_init();
+
 	
 	// Device has 1,6 seconds to do all the initialization
 	// afterwards watchdog will be fired
 	fwdgt_counter_reload();
-
 	// Init usart steer/bluetooth
-	USART_Steer_COM_init();
+  #if defined(ENABLE_STEERING) || defined(ENABLE_SBUS) || defined(ENABLE_CRSF)
+	  USART_Steer_COM_init();
+  #endif
+  #ifdef ENABLE_PPM
+    init_PPM();
+  #endif
+  #ifdef ENABLE_PWM
+    COMM_PWM_Init();
+    buzzerFreq = 8;
+    Delay(20);
+  #endif
+  #ifdef ENABLE_ANALOG
+    init_Analog();
+  #endif
 
 #ifdef MASTER
 	// Startup-Sound
@@ -342,11 +354,22 @@ int main (void)
 	{
 #ifdef MASTER
 		steerCounter++;	
-		// if ((steerCounter % 2) == 0)
-		// {	
+		if ((steerCounter % 2) == 0)
+		{	
 		// 	// Request steering data
-		// 	SendSteerDevice();
-		// }
+    #ifdef ENABLE_STEERING
+		 	SendSteerDevice();
+    #endif
+    #ifdef ENABLE_CRSF
+      RemoteUpdate();
+    #endif
+    #ifdef ENABLE_PWM
+      // speed = getPwmCh1();
+      // steer = getPwmCh2();      
+      speed=200;
+
+    #endif
+		}
 		
 		// Calculate expo rate for less steering with higher speeds
 		expo = MAP((float)ABS(speed), 0, 1000, 1, 0.5);

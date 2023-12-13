@@ -38,8 +38,12 @@
 #define MASTER										  	// Select if firmware is for master or slave board
 //#define SLAVE 												// Select if firmware is for master or slave board
 
+// #define ENABLE_CRSF                 // SBUS Mode
 #define ENABLE_SBUS                 // SBUS Mode
 // #define ENABLE_STEERING          // Steereng mode
+// #define ENABLE_PPM
+// #define ENABLE_PWM
+// #define ENABLE_ANALOG
 
 // ################################################################################
 

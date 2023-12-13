@@ -44,4 +44,23 @@ void SendBuffer(uint32_t usart_periph, uint8_t buffer[], uint8_t length);
 //----------------------------------------------------------------------------
 uint16_t CalcCRC(uint8_t *ptr, int count);
 
+#ifdef ENABLE_STEERING
+#include "../Inc/commsSteering.h"
+#endif
+#ifdef ENABLE_SBUS
+#include "../Inc/commsSbus.h"
+#endif
+#ifdef ENABLE_CRSF
+#include "../Inc/commsCrsf.h"
+#endif
+#ifdef ENABLE_PPM
+#include "../Inc/commsPpm.h"
+#endif
+#ifdef ENABLE_PWM
+#include "../Inc/commsPwm.h"
+#endif
+#ifdef ENABLE_ANALOG
+#include "../Inc/commsAnalog.h"
+#endif
+
 #endif

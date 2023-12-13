@@ -109,11 +109,16 @@
 #define BUTTON_PORT GPIOC
 
 // Usart steer defines
+#if defined(ENABLE_CRSF)||defined(ENABLE_SBUS)||defined(ENABLE_STEERING)
 #define USART_STEER_COM USART0
 #define USART_STEER_COM_TX_PIN GPIO_PIN_6
 #define USART_STEER_COM_TX_PORT GPIOB
 #define USART_STEER_COM_RX_PIN GPIO_PIN_7
 #define USART_STEER_COM_RX_PORT GPIOB
+#endif
+
+#ifdef ENABLE_PPM
+#endif
 
 #ifdef MASTER
 // Buzzer defins
@@ -138,6 +143,7 @@
 #define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 #define MAX(x, high) (((x) > (high)) ? (high) : (x))
 #define MAP(x, xMin, xMax, yMin, yMax) ((x - xMin) * (yMax - yMin) / (xMax - xMin) + yMin)
+#define IN_RANGE(x, low, high) (((x) >= (low)) && ((x) <= (high)))
 
 // ADC buffer struct
 typedef struct
